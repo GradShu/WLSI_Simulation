@@ -19,7 +19,7 @@ Intensity = OCTFileGetIntensity(handle);
 figure(1);clf;
 imagesc(Intensity);
 
-%%%%% reading video image %%%%%%
+%%%% reading video image %%%%%%
 
 VideoImage = OCTFileGetColoredData(handle,'VideoImage');
 figure(2);clf;
