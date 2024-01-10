@@ -13,8 +13,8 @@ NrRawData = OCTFileGetNrRawData(handle);
 
 load('Wavelength.mat','Wavelength');
 [row, column] = size(RawData);
-Nifft = 2^12;
-gray_value = zeros(Nifft,column);
+Nifft = 2^11;
+gray_value = zeros(Nifft/2,column);
 for i = 1:column
    [z,intensity_ifft] = A_scan(Wavelength,Spectrum,RawData(:,i),Nifft);
    grayscale = inten2gray(intensity_ifft);
@@ -56,11 +56,11 @@ function [z,intensity_ifft] = A_scan(Wavelength,Spectrum,RawData,Nifft)
     %对光谱进行傅里叶逆变换
 %     Nifft = 2^15;
     interference_signal = ifft(intensity_shaping,Nifft);
-    interference_signal = ifftshift(interference_signal);
+%     interference_signal = ifftshift(interference_signal);
     deltaSigma = (sigma_inter(end)-sigma_inter(1))/(length(sigma_inter)-1);
     deltaZ = 1/(2*Nifft*deltaSigma);
     z = (1:Nifft)*deltaZ;
-    intensity_ifft = abs(interference_signal);
+    intensity_ifft = abs(interference_signal(1:Nifft/2));
     %坐标变换
     z = z-z(end)/2;
 %     plot(z,intensity_ifft);
