@@ -1,5 +1,5 @@
 close all;clc;clear;
-handle  = OCTFileOpen('Default_0193_Mode2D.oct');
+handle  = OCTFileOpen('Default_0186_Mode2D.oct');
 disp( OCTFileGetProperty(handle, 'AcquisitionMode') );
 disp( OCTFileGetProperty(handle, 'RefractiveIndex') );
 disp( OCTFileGetProperty(handle, 'Comment') );
@@ -9,7 +9,6 @@ disp( OCTFileGetProperty(handle, 'ExperimentNumber') );
 %reading spectral raw data
 NrRawData = OCTFileGetNrRawData(handle);
 [RawData, Spectrum] = OCTFileGetRawData(handle, 0);
-% plot(1:2048,RawData(:,1));
 load('Wavelength.mat','Wavelength');
 [row, column] = size(RawData);
 Nifft = 2^15;
@@ -19,13 +18,17 @@ for i = 1:column
    grayscale = inten2gray(intensity_ifft);
    gray_value(:,i) = grayscale';
 end
-% image(gray_value);
-% I = mat2gray(gray_value);
-imshow(gray_value,[],'XData', [0, 4.5], 'YData', [0, 2.8],'InitialMagnification','fit');
+%获取X方向和z方向的范围
+thisList = handle.head.DataFiles;
+node = thisList.DataFile{3};
+RangeZ = str2double(node.Attributes.RangeZ);
+RangeX = str2double(node.Attributes.RangeX);
+%显示图像
+imshow(gray_value,[],'XData', [0, RangeX], 'YData', [0, RangeZ],'InitialMagnification','fit');
 set(gca, 'YDir', 'reverse');
 %将小Tick打开
-set(gca,'XMinorTick','on')
-set(gca,'YMinorTick','on')
+set(gca,'XMinorTick','on'),xlabel('X(mm)');
+set(gca,'YMinorTick','on'),ylabel('Z(mm)');
 axis on;
 axis image
 
@@ -49,8 +52,8 @@ function [z,intensity_ifft] = A_scan(Wavelength,Spectrum,RawData,Nifft)
     sigma_inter = linspace(sigma(1),sigma(end),length(sigma));
     %光谱强度三次样条插值
     intensity_inter = spline(sigma,intensity,sigma_inter);
-    %干涉光谱整形（采用汉宁窗）
-    intensity_shaping = intensity_inter.* (hann(length(intensity_inter)))';
+    %干涉光谱整形（采用高斯窗）
+    intensity_shaping = intensity_inter.* (gausswin(length(intensity_inter)))';
     %对光谱进行傅里叶逆变换
     interference_signal = ifft(intensity_shaping,Nifft);
 %     interference_signal = ifftshift(interference_signal);
