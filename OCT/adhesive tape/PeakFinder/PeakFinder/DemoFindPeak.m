@@ -1,3 +1,4 @@
+clear ;clc
 % % A simple self-contained demonstration of the findpeak function (line 54)
 % % applied to noisy synthetic data set consisting of a random number of narrow 
 % % peaks.  Each time you run this, a different set of peaks is generated.
